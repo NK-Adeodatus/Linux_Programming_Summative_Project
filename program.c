@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Global variable as required by the assignment
+// Global variable 
 int global_counter = 0;
 
-// Function 1: Dynamically allocates memory
+// Dynamically allocates memory
 int* allocate_memory(int size) {
     int *array = (int *)malloc(size * sizeof(int));
     if (array == NULL) {
@@ -14,7 +14,7 @@ int* allocate_memory(int size) {
     return array;
 }
 
-// Function 2: Processes data using a loop and conditional logic
+// Processes data using a loop and conditional logic
 void process_data(int *array, int size) {
     for (int i = 0; i < size; i++) {
         if (i % 2 == 0) {
@@ -26,7 +26,7 @@ void process_data(int *array, int size) {
     }
 }
 
-// Function 3: Displays output and frees memory
+// Displays output and frees memory
 void print_and_cleanup(int *array, int size) {
     printf("Processed Array Data:\n");
     for (int i = 0; i < size; i++) {
@@ -39,15 +39,12 @@ void print_and_cleanup(int *array, int size) {
 }
 
 int main(void) {
-    int size = 5; // Small size for manageable output
+    int size = 5; 
     
-    // Call Function 1
     int *my_data = allocate_memory(size);
     
-    // Call Function 2
     process_data(my_data, size);
     
-    // Call Function 3
     print_and_cleanup(my_data, size);
     
     return 0;
