@@ -45,6 +45,58 @@ _start:
     mov rdi, r12        ; file descriptor to close
     syscall
 
+    ; 6 & 7. Traversal Loop, Total Line Counting & Valid Record Detection
+    xor r14, r14        ; r14 = 0 (buffer index)
+    xor r15, r15        ; r15 = 0 (total_lines counter)
+    xor r11, r11        ; r11 = 0 (valid_lines counter)
+    xor r8, r8          ; r8  = 0 (current line has data flag)
+
+    cmp r13, 0          ; if bytes read == 0, file is empty
+    je .exit_success
+
+.traverse_loop:
+    cmp r14, r13        ; have we processed all bytes?
+    jge .check_last_line
+
+    mov al, byte [buffer + r14] ; load 1 byte into AL
+
+    cmp al, 10          ; is it a Unix newline (\n, ASCII 10)?
+    je .handle_newline
+
+    cmp al, 13          ; is it a Windows carriage return (\r, ASCII 13)?
+    je .next_byte       ; if yes, just ignore it
+
+    ; It's neither \n nor \r, so it's actual data
+    mov r8, 1           ; set flag: current line has data
+    jmp .next_byte
+
+.handle_newline:
+    inc r15             ; increment total_lines counter
+
+    cmp r8, 1           ; did this line have valid data?
+    jne .reset_flag
+    inc r11             ; if yes, increment valid_lines counter
+
+.reset_flag:
+    xor r8, r8          ; reset flag to 0 for the next line
+
+.next_byte:
+    inc r14             ; increment buffer index
+    jmp .traverse_loop
+
+.check_last_line:
+    ; If the file doesn't end with a newline, the last line wasn't counted.
+    mov r14, r13        ; get total bytes read
+    dec r14             ; point to the very last byte (index = length - 1)
+    mov al, byte [buffer + r14]
+    cmp al, 10          ; was the last byte a newline?
+    je .exit_success    ; if yes, we already handled it in the loop
+
+    inc r15             ; if not, increment total_lines for the final line
+    cmp r8, 1           ; did this final line have data?
+    jne .exit_success
+    inc r11             ; if yes, increment valid_lines for the final line
+
     jmp .exit_success
 
 .open_error:
