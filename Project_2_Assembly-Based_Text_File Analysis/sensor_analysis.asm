@@ -58,7 +58,7 @@ _start:
     xor r8, r8          ; r8  = 0 (current line has data flag)
 
     cmp r13, 0          ; if bytes read == 0, file is empty
-    je .exit_success
+    je .print_results
 
 .traverse_loop:
     cmp r14, r13        ; have we processed all bytes?
@@ -96,7 +96,7 @@ _start:
     dec r14             ; point to the very last byte (index = length - 1)
     mov al, byte [buffer + r14]
     cmp al, 10          ; was the last byte a newline?
-    je .exit_success    ; if yes, we already handled it in the loop
+    je .print_results   ; if yes, we already handled it in the loop
 
     inc r15             ; if not, increment total_lines for the final line
     cmp r8, 1           ; did this final line have data?
