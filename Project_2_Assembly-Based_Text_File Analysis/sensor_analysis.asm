@@ -40,6 +40,11 @@ _start:
     ; Save the number of bytes read in r13 for traversal later
     mov r13, rax
 
+    ; 5. Close the file
+    mov rax, 3          ; sys_close system call number
+    mov rdi, r12        ; file descriptor to close
+    syscall
+
     jmp .exit_success
 
 .open_error:
