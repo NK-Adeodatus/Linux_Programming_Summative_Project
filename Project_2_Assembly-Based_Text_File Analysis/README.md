@@ -9,11 +9,7 @@ This project is an x86-64 assembly program that reads a text file (`sensor_readi
 
 ## Build Instructions
 
-1. Open your terminal and navigate to the project directory:
-   ```bash
-   cd "C:\Users\USER\Documents\Class_Projects\W6_Summative_assignment_for_Linux_Programming_course\Project_2_Assembly-Based_Text_File Analysis"
-   ```
-   *(Note: If using WSL, the path may look like `/mnt/c/Users/...`)*
+1. Open your terminal and navigate to the project directory.
 
 2. Assemble the source code into a 64-bit ELF object file:
    ```bash
