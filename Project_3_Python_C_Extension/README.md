@@ -12,7 +12,6 @@ large volumes of real-time IoT readings.
 | `sensor_analysis.c` | C source: method implementations, method table, module definition, and init function. |
 | `setup.py` | Build script (setuptools) that compiles `sensor_analysis.c` into an importable shared library. |
 | `test_sensor_analysis.py` | Python test program exercising every function, including invalid input and boundary cases. |
-| `.gitignore` | Excludes build artifacts (`build/`, `*.so`, `__pycache__/`) from version control. |
 
 ## Requirements
 
