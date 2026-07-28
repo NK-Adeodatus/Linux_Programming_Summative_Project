@@ -234,6 +234,106 @@ static PyObject *sensor_count_above(PyObject *self, PyObject *args) {
     /* Return an integer count as a Python long object */
     return PyLong_FromLong(count);
 }
+ 
+/*
+ * Function: sensor_statistics
+ * Python name: statistics(data)
+ *
+ * Returns a Python dict summarizing the dataset in one call:
+ *   { "samples": <int>, "average": <float>, "minimum": <float>, "maximum": <float> }
+ *
+ * Formula: average = sum / n ; minimum/maximum tracked in the same pass.
+ * Time complexity: O(n) — a single pass computes sum, min, and max together
+ * (cheaper than calling average() and range_value() separately, which would
+ * be two passes over the same data).
+ *
+ * Memory management: No dynamic allocation for the numeric work — same
+ * fetch/convert/Py_DECREF pattern as the other functions. The only "new"
+ * memory involved is the PyObject* wrappers created for the four dict
+ * values (a PyLong and three PyFloats) and the dict itself, all of which
+ * are ordinary Python objects returned to the caller. PyDict_SetItemString
+ * does not steal the reference to the value it's given, so we still
+ * Py_DECREF each value object after inserting it, once it's safely owned
+ * by the dict.
+ */
+static PyObject *sensor_statistics(PyObject *self, PyObject *args) {
+    PyObject *data;
+ 
+    if (!PyArg_ParseTuple(args, "O", &data)) {
+        return NULL;
+    }
+ 
+    Py_ssize_t size = validate_and_get_size(data);
+    if (size == -1) {
+        return NULL;
+    }
+ 
+    /* Seed min/max/sum with the first element */
+    PyObject *first = PySequence_GetItem(data, 0);
+    if (first == NULL) { return NULL; }
+    double first_val = PyFloat_AsDouble(first);
+    Py_DECREF(first);
+    if (first_val == -1.0 && PyErr_Occurred()) { return NULL; }
+ 
+    double min_val = first_val;
+    double max_val = first_val;
+    double sum = first_val;
+ 
+    for (Py_ssize_t i = 1; i < size; i++) {
+        PyObject *item = PySequence_GetItem(data, i);
+        if (item == NULL) { return NULL; }
+        double val = PyFloat_AsDouble(item);
+        Py_DECREF(item);
+        if (val == -1.0 && PyErr_Occurred()) { return NULL; }
+ 
+        if (val < min_val) min_val = val;
+        if (val > max_val) max_val = val;
+        sum += val;
+    }
+ 
+    double average = sum / (double)size;
+ 
+    /* Build the result dict. PyDict_New returns a new reference that we
+     * return to the caller (or clean up ourselves on failure). */
+    PyObject *result = PyDict_New();
+    if (result == NULL) { return NULL; }
+ 
+    PyObject *py_samples = PyLong_FromSsize_t(size);
+    PyObject *py_average = PyFloat_FromDouble(average);
+    PyObject *py_minimum = PyFloat_FromDouble(min_val);
+    PyObject *py_maximum = PyFloat_FromDouble(max_val);
+ 
+    if (!py_samples || !py_average || !py_minimum || !py_maximum) {
+        Py_XDECREF(py_samples);
+        Py_XDECREF(py_average);
+        Py_XDECREF(py_minimum);
+        Py_XDECREF(py_maximum);
+        Py_DECREF(result);
+        return NULL;
+    }
+ 
+    /* PyDict_SetItemString increments the refcount of the value itself
+     * (it does NOT steal our reference), so each value must still be
+     * Py_DECREF'd after insertion to avoid leaking it. */
+    if (PyDict_SetItemString(result, "samples", py_samples) < 0 ||
+        PyDict_SetItemString(result, "average", py_average) < 0 ||
+        PyDict_SetItemString(result, "minimum", py_minimum) < 0 ||
+        PyDict_SetItemString(result, "maximum", py_maximum) < 0) {
+        Py_DECREF(py_samples);
+        Py_DECREF(py_average);
+        Py_DECREF(py_minimum);
+        Py_DECREF(py_maximum);
+        Py_DECREF(result);
+        return NULL;
+    }
+ 
+    Py_DECREF(py_samples);
+    Py_DECREF(py_average);
+    Py_DECREF(py_minimum);
+    Py_DECREF(py_maximum);
+ 
+    return result;
+}
 
 /* 
  * Method table: maps Python function names to C functions.
@@ -243,6 +343,7 @@ static PyMethodDef SensorMethods[] = {
     {"range_value", sensor_range_value, METH_VARARGS, "Compute the range (max - min) of a dataset."},
     {"variance",    sensor_variance,    METH_VARARGS, "Compute the sample variance of a dataset."},
     {"count_above", sensor_count_above, METH_VARARGS, "Count readings strictly greater than a limit."},
+    {"statistics",  sensor_statistics,  METH_VARARGS, "Return a dict with samples, average, minimum, and maximum."},
     {NULL, NULL, 0, NULL}        /* Sentinel indicating the end of the array */
 };
 
