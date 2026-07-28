@@ -54,7 +54,7 @@ _start:
     ; 6 & 7. Traversal Loop, Total Line Counting & Valid Record Detection
     xor r14, r14        ; r14 = 0 (buffer index)
     xor r15, r15        ; r15 = 0 (total_lines counter)
-    xor r11, r11        ; r11 = 0 (valid_lines counter)
+    xor r12, r12        ; r12 = 0 (valid_lines counter) ; CHANGED to r12 (callee-saved)
     xor r8, r8          ; r8  = 0 (current line has data flag)
 
     cmp r13, 0          ; if bytes read == 0, file is empty
@@ -81,7 +81,7 @@ _start:
 
     cmp r8, 1           ; did this line have valid data?
     jne .reset_flag
-    inc r11             ; if yes, increment valid_lines counter
+    inc r12             ; if yes, increment valid_lines counter
 
 .reset_flag:
     xor r8, r8          ; reset flag to 0 for the next line
@@ -101,7 +101,7 @@ _start:
     inc r15             ; if not, increment total_lines for the final line
     cmp r8, 1           ; did this final line have data?
     jne .print_results
-    inc r11             ; if yes, increment valid_lines for the final line
+    inc r12             ; if yes, increment valid_lines for the final line
 
 .print_results:
     ; 8. Output the results
@@ -130,8 +130,8 @@ _start:
     mov rdx, len_valid
     syscall
 
-    ; Print valid_lines (r11)
-    mov rax, r11
+    ; Print valid_lines (r12)
+    mov rax, r12
     call print_number
 
     ; Print newline

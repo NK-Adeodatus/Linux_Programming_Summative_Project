@@ -34,6 +34,6 @@ This project is an x86-64 assembly program that reads a text file (`sensor_readi
 
 ## Expected Output (based on provided sample file)
 ```text
-Total records: 5
-Valid records: 3
+Total records: 7
+Valid records: 4
 ```
