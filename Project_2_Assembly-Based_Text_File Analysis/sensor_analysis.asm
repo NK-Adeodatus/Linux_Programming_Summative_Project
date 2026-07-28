@@ -4,9 +4,15 @@ section .data
     err_open_len equ $ - err_open_msg
     err_read_msg db "Error: Cannot read file", 10
     err_read_len equ $ - err_read_msg
+    msg_total db "Total records: "
+    len_total equ $ - msg_total
+    msg_valid db "Valid records: "
+    len_valid equ $ - msg_valid
+    newline db 10
 
 section .bss
     buffer resb 4096    ; reserve 4096 bytes for file content
+    num_buffer resb 20  ; buffer to hold the ASCII digits for printing
 
 section .text
     global _start
@@ -94,8 +100,46 @@ _start:
 
     inc r15             ; if not, increment total_lines for the final line
     cmp r8, 1           ; did this final line have data?
-    jne .exit_success
+    jne .print_results
     inc r11             ; if yes, increment valid_lines for the final line
+
+.print_results:
+    ; 8. Output the results
+    ; Print "Total records: "
+    mov rax, 1          ; sys_write
+    mov rdi, 1          ; stdout
+    mov rsi, msg_total
+    mov rdx, len_total
+    syscall
+
+    ; Print total_lines (r15)
+    mov rax, r15
+    call print_number
+
+    ; Print newline
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, newline
+    mov rdx, 1
+    syscall
+
+    ; Print "Valid records: "
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, msg_valid
+    mov rdx, len_valid
+    syscall
+
+    ; Print valid_lines (r11)
+    mov rax, r11
+    call print_number
+
+    ; Print newline
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, newline
+    mov rdx, 1
+    syscall
 
     jmp .exit_success
 
@@ -130,3 +174,38 @@ _start:
     mov rax, 60         ; sys_exit system call number
     mov rdi, 0          ; exit status 0 (success)
     syscall             ; invoke the kernel
+
+; Subroutine: print_number
+; Converts an integer in rax to a string and prints it
+print_number:
+    mov rcx, 0          ; digit counter
+    mov rbx, 10         ; divisor (we want base 10)
+    
+.divide_loop:
+    xor rdx, rdx        ; clear rdx before division (rdx:rax / rbx)
+    div rbx             ; rax = quotient, rdx = remainder
+    add rdx, '0'        ; convert remainder to ASCII character (add 48)
+    push rdx            ; push digit onto stack (digits are calculated right-to-left)
+    inc rcx             ; increment digit count
+    cmp rax, 0          ; is quotient zero?
+    jne .divide_loop    ; if not, keep dividing
+
+.print_digits:
+    pop rdx             ; pop digit from stack (reverses the order to left-to-right)
+    mov byte [num_buffer], dl ; store in our output buffer
+    
+    ; preserve rcx (it gets clobbered by syscall)
+    push rcx
+    
+    mov rax, 1          ; sys_write
+    mov rdi, 1          ; stdout
+    mov rsi, num_buffer ; pointer to digit
+    mov rdx, 1          ; length 1
+    syscall
+    
+    pop rcx             ; restore rcx
+    dec rcx             ; decrement digit count
+    cmp rcx, 0
+    jne .print_digits
+    
+    ret                 ; return to main code
