@@ -121,12 +121,79 @@ static PyObject *sensor_range_value(PyObject *self, PyObject *args) {
     return PyFloat_FromDouble(max_val - min_val);
 }
 
+/*
+ * Function: sensor_variance
+ * Python name: variance(data)
+ *
+ * Returns the SAMPLE variance of the dataset.
+ * Formula: s^2 = sum((xi - mean)^2) / (n - 1)  [Bessel's correction]
+ * Time complexity: O(n) — one pass using Welford's online algorithm.
+ *
+ * NUMERICAL STABILITY NOTE:
+ * The naive two-pass approach (compute mean, then sum squared deviations)
+ * can suffer from catastrophic cancellation when values are very large or
+ * very close together. The naive one-pass approach (sum of squares minus
+ * n*mean^2) also suffers from precision loss for the same reason.
+ * Welford's online algorithm avoids this entirely by computing variance
+ * incrementally: each new value updates the mean and M2 accumulator
+ * in a numerically stable way, never subtracting two large similar numbers.
+ *
+ * Memory management: No dynamic allocation. Items are fetched, converted,
+ * and released (Py_DECREF) within each loop iteration.
+ */
+static PyObject *sensor_variance(PyObject *self, PyObject *args) {
+    PyObject *data;
+
+    if (!PyArg_ParseTuple(args, "O", &data)) {
+        return NULL;
+    }
+
+    Py_ssize_t size = validate_and_get_size(data);
+    if (size == -1) {
+        return NULL;
+    }
+
+    /* Sample variance requires at least 2 data points (denominator = n-1) */
+    if (size < 2) {
+        PyErr_SetString(PyExc_ValueError,
+            "Sample variance requires at least 2 data points.");
+        return NULL;
+    }
+
+    /* Welford's online algorithm variables */
+    double mean = 0.0;  /* Running mean */
+    double M2   = 0.0;  /* Running sum of squared deviations from the mean */
+
+    for (Py_ssize_t i = 0; i < size; i++) {
+        PyObject *item = PySequence_GetItem(data, i);
+        if (item == NULL) { return NULL; }
+        double val = PyFloat_AsDouble(item);
+        Py_DECREF(item);
+        if (val == -1.0 && PyErr_Occurred()) { return NULL; }
+
+        /* Welford's update step:
+         * delta  = how far is this value from the current mean?
+         * mean   = shift the mean toward this value
+         * delta2 = how far is this value from the NEW updated mean?
+         * M2     = accumulate the product of both deltas (cross-term)
+         * This avoids ever subtracting two large, similar floating-point numbers. */
+        double delta  = val - mean;
+        mean         += delta / (double)(i + 1);
+        double delta2 = val - mean;
+        M2           += delta * delta2;
+    }
+
+    /* Bessel's correction: divide by (n-1) for sample variance */
+    return PyFloat_FromDouble(M2 / (double)(size - 1));
+}
+
 /* 
  * Method table: maps Python function names to C functions.
  */
 static PyMethodDef SensorMethods[] = {
     {"average",     sensor_average,     METH_VARARGS, "Compute the arithmetic mean of a dataset."},
     {"range_value", sensor_range_value, METH_VARARGS, "Compute the range (max - min) of a dataset."},
+    {"variance",    sensor_variance,    METH_VARARGS, "Compute the sample variance of a dataset."},
     {NULL, NULL, 0, NULL}        /* Sentinel indicating the end of the array */
 };
 
