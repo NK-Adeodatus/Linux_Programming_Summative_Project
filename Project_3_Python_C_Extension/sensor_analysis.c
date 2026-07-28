@@ -187,6 +187,54 @@ static PyObject *sensor_variance(PyObject *self, PyObject *args) {
     return PyFloat_FromDouble(M2 / (double)(size - 1));
 }
 
+/*
+ * Function: sensor_count_above
+ * Python name: count_above(data, limit)
+ *
+ * Returns the number of readings strictly greater than the given limit.
+ * Formula: count of all x_i where x_i > limit
+ * Time complexity: O(n) — one pass through the dataset.
+ *
+ * This function parses TWO arguments: a sequence (O) and a double (d).
+ * The format string "Od" tells PyArg_ParseTuple to expect an object
+ * followed by a C double directly converted from a Python float/int.
+ *
+ * Memory management: No dynamic allocation. Items are fetched, converted
+ * to double, compared, and immediately released with Py_DECREF.
+ * Returns a Python integer (PyLong), not a float.
+ */
+static PyObject *sensor_count_above(PyObject *self, PyObject *args) {
+    PyObject *data;
+    double limit;
+
+    /* Parse two arguments: one Python object ('O') and one double ('d') */
+    if (!PyArg_ParseTuple(args, "Od", &data, &limit)) {
+        return NULL;
+    }
+
+    Py_ssize_t size = validate_and_get_size(data);
+    if (size == -1) {
+        return NULL;
+    }
+
+    long count = 0; /* Use a C long to hold the count before returning */
+
+    for (Py_ssize_t i = 0; i < size; i++) {
+        PyObject *item = PySequence_GetItem(data, i);
+        if (item == NULL) { return NULL; }
+        double val = PyFloat_AsDouble(item);
+        Py_DECREF(item);
+        if (val == -1.0 && PyErr_Occurred()) { return NULL; }
+
+        if (val > limit) {
+            count++;
+        }
+    }
+
+    /* Return an integer count as a Python long object */
+    return PyLong_FromLong(count);
+}
+
 /* 
  * Method table: maps Python function names to C functions.
  */
@@ -194,6 +242,7 @@ static PyMethodDef SensorMethods[] = {
     {"average",     sensor_average,     METH_VARARGS, "Compute the arithmetic mean of a dataset."},
     {"range_value", sensor_range_value, METH_VARARGS, "Compute the range (max - min) of a dataset."},
     {"variance",    sensor_variance,    METH_VARARGS, "Compute the sample variance of a dataset."},
+    {"count_above", sensor_count_above, METH_VARARGS, "Count readings strictly greater than a limit."},
     {NULL, NULL, 0, NULL}        /* Sentinel indicating the end of the array */
 };
 
