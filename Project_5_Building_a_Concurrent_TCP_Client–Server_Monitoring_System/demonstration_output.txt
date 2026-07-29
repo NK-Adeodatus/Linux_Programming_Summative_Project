@@ -1,3 +1,5 @@
+
+
 SCENARIO 1 - Successful authentication + reservation
 -----------------------------------------------------
 Client (adeodatus123):
@@ -80,8 +82,3 @@ Server log:
   Connected users (0):
   ----------------
  
-Result: the server thread for that connection exited cleanly, the
-user was removed from the connected-users list, and the main server
-process continued running and immediately accepted and correctly
-served a brand-new client (bob456) afterward - proving "server
-crashes due to unexpected client disconnection" is prevented.
