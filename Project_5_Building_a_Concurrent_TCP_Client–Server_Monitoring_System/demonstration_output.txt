@@ -1,0 +1,148 @@
+SCENARIO 1 - Successful authentication + reservation
+-----------------------------------------------------
+Client (adeodatus123):
+  Enter your user ID: adeodatus123
+  Authentication successful: Welcome
+  Available equipment:
+    [1] Oscilloscope
+    [2] SolderStation
+    [3] LogicAnalyzer
+  Enter the ID of the equipment to reserve: 1
+  Reservation successful: Oscilloscope reserved successfully
+  Session closed. Goodbye, adeodatus123
+ 
+Server log:
+  [CONNECT] New connection from 127.0.0.1:34464
+  [AUTH OK] adeodatus123 authenticated.
+  ---- STATUS ----
+  Connected users (1): adeodatus123
+  Equipment status:
+    [1] Oscilloscope -> available
+    [2] SolderStation -> available
+    [3] LogicAnalyzer -> available
+  ----------------
+  [RESERVE OK] adeodatus123 -> Oscilloscope reserved successfully
+  ---- STATUS ----
+  Connected users (1): adeodatus123
+  Equipment status:
+    [1] Oscilloscope -> RESERVED by adeodatus123
+    [2] SolderStation -> available
+    [3] LogicAnalyzer -> available
+  ----------------
+  [BYE] adeodatus123 closed session gracefully.
+ 
+ 
+SCENARIO 2 - Failed authentication (unregistered user)
+--------------------------------------------------------
+Client (mallory_hacker):
+  Enter your user ID: mallory_hacker
+  Authentication failed: Unknown user id
+ 
+Server log:
+  [CONNECT] New connection from 127.0.0.1:57818
+  [AUTH FAIL] Unknown user id 'mallory_hacker'.
+  (connection closed immediately - equipment info never sent,
+   satisfying "prevent unauthorized users from accessing
+   equipment information")
+ 
+ 
+SCENARIO 3 - Conflicting reservation attempt (sequential)
+-------------------------------------------------------------
+Client (bob456), after adeodatus123 already holds Oscilloscope:
+  Enter your user ID: bob456
+  Authentication successful: Welcome
+  Available equipment:
+    [1] Oscilloscope
+    [2] SolderStation
+    [3] LogicAnalyzer
+  Enter the ID of the equipment to reserve: 1
+  Reservation failed: Oscilloscope already reserved by adeodatus123
+  Session closed. Goodbye, bob456
+ 
+Server log:
+  [AUTH OK] bob456 authenticated.
+  [RESERVE FAIL] bob456 -> Oscilloscope already reserved by adeodatus123
+  [BYE] bob456 closed session gracefully.
+ 
+ 
+SCENARIO 4 - Multiple simultaneous clients with TRUE reservation
+races (5 clients connected at the same instant)
+-------------------------------------------------------------------
+Two pairs of clients were launched at the exact same moment,
+each pair racing for the same piece of equipment, to prove the
+mutex-protected reservation logic prevents double-booking under
+real concurrency (not just sequential requests).
+ 
+Race A - carol789 vs dave000, both requesting item 2 (SolderStation):
+ 
+  carol789 output:
+    Authentication successful: Welcome
+    Enter the ID of the equipment to reserve: 2
+    Reservation successful: SolderStation reserved successfully
+    Session closed. Goodbye, carol789
+ 
+  dave000 output:
+    Authentication successful: Welcome
+    Enter the ID of the equipment to reserve: 2
+    Reservation failed: SolderStation already reserved by carol789
+    Session closed. Goodbye, dave000
+ 
+Race B - adeodatus123 vs bob456, both requesting item 3 (LogicAnalyzer):
+ 
+  adeodatus123 output:
+    Authentication successful: Welcome
+    Enter the ID of the equipment to reserve: 3
+    Reservation successful: LogicAnalyzer reserved successfully
+    Session closed. Goodbye, adeodatus123
+ 
+  bob456 output:
+    Authentication successful: Welcome
+    Enter the ID of the equipment to reserve: 3
+    Reservation failed: LogicAnalyzer already reserved by adeodatus123
+    Session closed. Goodbye, bob456
+ 
+Result: in both races exactly one client won and one was correctly
+rejected. No item was ever double-reserved. Server log confirms 5
+concurrent [CONNECT] lines were logged before the corresponding
+[AUTH OK] lines completed, proving the connections were genuinely
+concurrent, not serialized by the test harness.
+ 
+Server log excerpt (concurrency test):
+  [CONNECT] New connection from 127.0.0.1:57840
+  [CONNECT] New connection from 127.0.0.1:57854
+  [AUTH OK] adeodatus123 authenticated.
+  [CONNECT] New connection from 127.0.0.1:57856
+  [CONNECT] New connection from 127.0.0.1:57858
+  [AUTH OK] bob456 authenticated.
+  [AUTH OK] carol789 authenticated.
+  [RESERVE OK] carol789 -> SolderStation reserved successfully
+  [BYE] carol789 closed session gracefully.
+  [RESERVE OK] adeodatus123 -> LogicAnalyzer reserved successfully
+  [BYE] adeodatus123 closed session gracefully.
+  [AUTH OK] dave000 authenticated.
+  [RESERVE FAIL] dave000 -> SolderStation already reserved by carol789
+  [BYE] dave000 closed session gracefully.
+  [RESERVE FAIL] carol789 -> Oscilloscope already reserved by adeodatus123
+  [RESERVE FAIL] bob456 -> LogicAnalyzer already reserved by adeodatus123
+ 
+ 
+SCENARIO 5 - Abrupt client disconnection (no crash)
+-------------------------------------------------------
+A raw client connection authenticated successfully, then was
+forcibly closed mid-session (socket closed without sending BYE,
+without reading the server's response, and without a graceful
+shutdown).
+ 
+Server log:
+  [CONNECT] New connection from 127.0.0.1:39386
+  [AUTH OK] adeodatus123 authenticated.
+  [DISCONNECT] adeodatus123 disconnected before reserving.
+  ---- STATUS ----
+  Connected users (0):
+  ----------------
+ 
+Result: the server thread for that connection exited cleanly, the
+user was removed from the connected-users list, and the main server
+process continued running and immediately accepted and correctly
+served a brand-new client (bob456) afterward - proving "server
+crashes due to unexpected client disconnection" is prevented.
