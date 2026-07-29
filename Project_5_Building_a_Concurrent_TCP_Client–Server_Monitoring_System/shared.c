@@ -11,7 +11,7 @@
  * a real system would load these from a database or config file.
  */
 const char *registered_users[MAX_USERS] = {
-	"alice123",
+	"adeodatus123",
 	"bob456",
 	"carol789",
 	"dave000"
