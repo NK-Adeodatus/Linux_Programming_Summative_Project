@@ -1,0 +1,130 @@
+[10:48:39] Starting food delivery simulation (capacity=5, total_orders=20)
+[10:48:41] Kitchen: prepared Order #1 (total prepared: 1)
+[10:48:43] Kitchen: prepared Order #2 (total prepared: 2)
+[10:48:46] --- Monitor Report ---
+[10:48:46] Orders prepared: 2
+[10:48:46] Orders delivered: 0
+[10:48:46] Current Queue size: 1
+[10:48:46] ----------------------
+[10:48:47] Delivery: delivered Order #1 (total delivered: 1)
+[10:48:47] Kitchen: prepared Order #3 (total prepared: 3)
+[10:48:49] Kitchen: prepared Order #4 (total prepared: 4)
+[10:48:51] --- Monitor Report ---
+[10:48:51] Orders prepared: 4
+[10:48:51] Orders delivered: 1
+[10:48:51] Current Queue size: 2
+[10:48:51] ----------------------
+[10:48:51] Delivery: delivered Order #2 (total delivered: 2)
+[10:48:51] Kitchen: prepared Order #5 (total prepared: 5)
+[10:48:53] Kitchen: prepared Order #6 (total prepared: 6)
+[10:48:55] Delivery: delivered Order #3 (total delivered: 3)
+[10:48:55] Kitchen: prepared Order #7 (total prepared: 7)
+[10:48:56] --- Monitor Report ---
+[10:48:56] Orders prepared: 7
+[10:48:56] Orders delivered: 3
+[10:48:56] Current Queue size: 3
+[10:48:56] ----------------------
+[10:48:57] Kitchen: prepared Order #8 (total prepared: 8)
+[10:48:59] Delivery: delivered Order #4 (total delivered: 4)
+[10:48:59] Kitchen: prepared Order #9 (total prepared: 9)
+[10:49:01] --- Monitor Report ---
+[10:49:01] Orders prepared: 9
+[10:49:01] Orders delivered: 4
+[10:49:01] Current Queue size: 4
+[10:49:01] ----------------------
+[10:49:01] Kitchen: prepared Order #10 (total prepared: 10)
+[10:49:03] Delivery: delivered Order #5 (total delivered: 5)
+[10:49:03] Kitchen: prepared Order #11 (total prepared: 11)
+[10:49:05] Kitchen: prepared Order #12 (total prepared: 12)
+[10:49:06] --- Monitor Report ---
+[10:49:06] Orders prepared: 12
+[10:49:06] Orders delivered: 5
+[10:49:06] Current Queue size: 5
+[10:49:06] ----------------------
+[10:49:07] Delivery: delivered Order #6 (total delivered: 6)
+[10:49:09] Kitchen: prepared Order #13 (total prepared: 13)
+[10:49:11] --- Monitor Report ---
+[10:49:11] Delivery: delivered Order #7 (total delivered: 7)
+[10:49:11] Orders prepared: 13
+[10:49:11] Orders delivered: 6
+[10:49:11] Current Queue size: 5
+[10:49:11] ----------------------
+[10:49:13] Kitchen: prepared Order #14 (total prepared: 14)
+[10:49:15] Delivery: delivered Order #8 (total delivered: 8)
+[10:49:16] --- Monitor Report ---
+[10:49:16] Orders prepared: 14
+[10:49:16] Orders delivered: 8
+[10:49:16] Current Queue size: 5
+[10:49:16] ----------------------
+[10:49:17] Kitchen: prepared Order #15 (total prepared: 15)
+[10:49:20] Delivery: delivered Order #9 (total delivered: 9)
+[10:49:22] --- Monitor Report ---
+[10:49:22] Orders prepared: 15
+[10:49:22] Orders delivered: 9
+[10:49:22] Current Queue size: 5
+[10:49:22] ----------------------
+[10:49:22] Kitchen: prepared Order #16 (total prepared: 16)
+[10:49:24] Delivery: delivered Order #10 (total delivered: 10)
+[10:49:26] Kitchen: prepared Order #17 (total prepared: 17)
+[10:49:27] --- Monitor Report ---
+[10:49:27] Orders prepared: 17
+[10:49:27] Orders delivered: 10
+[10:49:27] Current Queue size: 5
+[10:49:27] ----------------------
+[10:49:28] Delivery: delivered Order #11 (total delivered: 11)
+[10:49:30] Kitchen: prepared Order #18 (total prepared: 18)
+[10:49:32] --- Monitor Report ---
+[10:49:32] Orders prepared: 18
+[10:49:32] Orders delivered: 11
+[10:49:32] Current Queue size: 5
+[10:49:32] ----------------------
+[10:49:32] Delivery: delivered Order #12 (total delivered: 12)
+[10:49:34] Kitchen: prepared Order #19 (total prepared: 19)
+[10:49:36] Delivery: delivered Order #13 (total delivered: 13)
+[10:49:37] --- Monitor Report ---
+[10:49:37] Orders prepared: 19
+[10:49:37] Orders delivered: 13
+[10:49:37] Current Queue size: 5
+[10:49:37] ----------------------
+[10:49:38] Kitchen: prepared Order #20 (total prepared: 20)
+[10:49:40] Delivery: delivered Order #14 (total delivered: 14)
+[10:49:40] Kitchen: all 20 orders prepared. Shutting down.
+[10:49:42] --- Monitor Report ---
+[10:49:42] Orders prepared: 20
+[10:49:42] Orders delivered: 14
+[10:49:42] Current Queue size: 5
+[10:49:42] ----------------------
+[10:49:44] Delivery: delivered Order #15 (total delivered: 15)
+[10:49:47] --- Monitor Report ---
+[10:49:47] Orders prepared: 20
+[10:49:47] Orders delivered: 15
+[10:49:47] Current Queue size: 4
+[10:49:47] ----------------------
+[10:49:48] Delivery: delivered Order #16 (total delivered: 16)
+[10:49:54] --- Monitor Report ---
+[10:49:54] Orders prepared: 20
+[10:49:54] Orders delivered: 16
+[10:49:54] Current Queue size: 3
+[10:49:54] ----------------------
+[10:49:54] Delivery: delivered Order #17 (total delivered: 17)
+[10:49:58] Delivery: delivered Order #18 (total delivered: 18)
+[10:49:59] --- Monitor Report ---
+[10:49:59] Orders prepared: 20
+[10:49:59] Orders delivered: 18
+[10:49:59] Current Queue size: 1
+[10:49:59] ----------------------
+[10:50:02] Delivery: delivered Order #19 (total delivered: 19)
+[10:50:04] --- Monitor Report ---
+[10:50:04] Orders prepared: 20
+[10:50:04] Orders delivered: 19
+[10:50:04] Current Queue size: 0
+[10:50:04] ----------------------
+[10:50:06] Delivery: delivered Order #20 (total delivered: 20)
+[10:50:06] Delivery: no more orders coming. Shutting down.
+[10:50:09] --- Monitor Report ---
+[10:50:09] Orders prepared: 20
+[10:50:09] Orders delivered: 20
+[10:50:09] Current Queue size: 0
+[10:50:09] ----------------------
+[10:50:09] Monitor: system finished. Shutting down.
+[10:50:09] All threads joined. Final counts -> prepared: 20, delivered: 20
