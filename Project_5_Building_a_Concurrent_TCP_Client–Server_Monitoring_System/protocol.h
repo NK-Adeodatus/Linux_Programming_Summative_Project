@@ -1,0 +1,16 @@
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
+
+#define MAX_MSG_LEN 512
+
+#define MSG_AUTH "AUTH"
+#define MSG_AUTH_OK "AUTH_OK"
+#define MSG_AUTH_FAIL "AUTH_FAIL"
+#define MSG_EQUIP_LIST "EQUIP_LIST"
+#define MSG_RESERVE "RESERVE"
+#define MSG_RESERVE_OK "RESERVE_OK"
+#define MSG_RESERVE_FAIL "RESERVE_FAIL"
+#define MSG_BYE "BYE"
+#define MSG_BYE_OK "BYE_OK"
+
+#endif
