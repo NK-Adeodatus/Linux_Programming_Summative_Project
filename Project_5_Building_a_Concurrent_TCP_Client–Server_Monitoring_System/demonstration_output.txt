@@ -65,68 +65,7 @@ Server log:
   [BYE] bob456 closed session gracefully.
  
  
-SCENARIO 4 - Multiple simultaneous clients with TRUE reservation
-races (5 clients connected at the same instant)
--------------------------------------------------------------------
-Two pairs of clients were launched at the exact same moment,
-each pair racing for the same piece of equipment, to prove the
-mutex-protected reservation logic prevents double-booking under
-real concurrency (not just sequential requests).
- 
-Race A - carol789 vs dave000, both requesting item 2 (SolderStation):
- 
-  carol789 output:
-    Authentication successful: Welcome
-    Enter the ID of the equipment to reserve: 2
-    Reservation successful: SolderStation reserved successfully
-    Session closed. Goodbye, carol789
- 
-  dave000 output:
-    Authentication successful: Welcome
-    Enter the ID of the equipment to reserve: 2
-    Reservation failed: SolderStation already reserved by carol789
-    Session closed. Goodbye, dave000
- 
-Race B - adeodatus123 vs bob456, both requesting item 3 (LogicAnalyzer):
- 
-  adeodatus123 output:
-    Authentication successful: Welcome
-    Enter the ID of the equipment to reserve: 3
-    Reservation successful: LogicAnalyzer reserved successfully
-    Session closed. Goodbye, adeodatus123
- 
-  bob456 output:
-    Authentication successful: Welcome
-    Enter the ID of the equipment to reserve: 3
-    Reservation failed: LogicAnalyzer already reserved by adeodatus123
-    Session closed. Goodbye, bob456
- 
-Result: in both races exactly one client won and one was correctly
-rejected. No item was ever double-reserved. Server log confirms 5
-concurrent [CONNECT] lines were logged before the corresponding
-[AUTH OK] lines completed, proving the connections were genuinely
-concurrent, not serialized by the test harness.
- 
-Server log excerpt (concurrency test):
-  [CONNECT] New connection from 127.0.0.1:57840
-  [CONNECT] New connection from 127.0.0.1:57854
-  [AUTH OK] adeodatus123 authenticated.
-  [CONNECT] New connection from 127.0.0.1:57856
-  [CONNECT] New connection from 127.0.0.1:57858
-  [AUTH OK] bob456 authenticated.
-  [AUTH OK] carol789 authenticated.
-  [RESERVE OK] carol789 -> SolderStation reserved successfully
-  [BYE] carol789 closed session gracefully.
-  [RESERVE OK] adeodatus123 -> LogicAnalyzer reserved successfully
-  [BYE] adeodatus123 closed session gracefully.
-  [AUTH OK] dave000 authenticated.
-  [RESERVE FAIL] dave000 -> SolderStation already reserved by carol789
-  [BYE] dave000 closed session gracefully.
-  [RESERVE FAIL] carol789 -> Oscilloscope already reserved by adeodatus123
-  [RESERVE FAIL] bob456 -> LogicAnalyzer already reserved by adeodatus123
- 
- 
-SCENARIO 5 - Abrupt client disconnection (no crash)
+SCENARIO 4 - Abrupt client disconnection (no crash)
 -------------------------------------------------------
 A raw client connection authenticated successfully, then was
 forcibly closed mid-session (socket closed without sending BYE,
