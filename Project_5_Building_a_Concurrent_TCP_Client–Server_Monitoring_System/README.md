@@ -74,7 +74,7 @@ Defaults: `server_ip = 127.0.0.1`, `port = 8080`.
 **3. Follow the prompts:**
 
 ```
-Enter your user ID: alice123
+Enter your user ID: adeodatus123
 Authentication successful: Welcome
 Available equipment:
   [1] Oscilloscope
@@ -82,29 +82,22 @@ Available equipment:
   [3] LogicAnalyzer
 Enter the ID of the equipment to reserve: 1
 Reservation successful: Oscilloscope reserved successfully
-Session closed. Goodbye, alice123
+Session closed. Goodbye, adeodatus123
 ```
 
-Registered user IDs are defined in `shared.c` (`registered_users[]`):
-`alice123`, `bob456`, `carol789`, `dave000`. Any other ID will be
-rejected during authentication.
+## Registered Users
 
-## Trying Concurrency Yourself
+The following user IDs are valid for authentication (defined in `shared.c`):
 
-Open several terminals and run `./client` in each at roughly the same
-time, having two of them request the same equipment ID. You'll see
-exactly one succeed and the other receive a
-`Reservation failed: ... already reserved by ...` response — the
-server log will show both requests being processed without either
-corrupting the other's result.
+- `adeodatus123`
+- `bob456`
+- `carol789`
+- `dave000`
 
-## Documentation
+Use a different ID in each client terminal to use multiple simultaneous
+users. Any unregistered ID will be rejected during authentication.
 
-See [`DOCUMENTATION.md`](DOCUMENTATION.md) for a full writeup of the
-communication protocol, authentication process, concurrency model,
-shared-resource synchronization strategy, session management, and
-error/disconnection handling — including *why* each design choice was
-made.
+## Demo Sample
 
 See [`demo_output.txt`](demo_output.txt) for real captured logs
 covering successful/failed authentication, equipment listing,
